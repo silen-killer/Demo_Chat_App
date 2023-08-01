@@ -7,10 +7,10 @@ from tkinter import ttk
 
 # import all functions /
 # everything from chat.py file
-from chat import *
+# from gui import *
 
-PORT = 5050
-SERVER = "192.168.0.103"
+PORT = 5000
+SERVER = "192.168.110.79"
 ADDRESS = (SERVER, PORT)
 FORMAT = "utf-8"
 
