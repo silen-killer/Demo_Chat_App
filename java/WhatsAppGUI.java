@@ -111,13 +111,8 @@ public class WhatsAppGUI extends JFrame {
     private class EncryptMessageListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (isEncrypted) {
-                isEncrypted = false;
-                encryptButton.setText("Encrypt");
-            } else {
-                isEncrypted = true;
-                encryptButton.setText("OFF");
-            }
+            isEncrypted = !isEncrypted;
+            encryptButton.setText(isEncrypted ? "ON" : "OFF");
         }
     }
 
