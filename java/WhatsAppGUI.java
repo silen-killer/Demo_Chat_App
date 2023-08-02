@@ -12,8 +12,8 @@ public class WhatsAppGUI extends JFrame {
 
     private JTextArea chatArea;
     private JTextField messageField;
-    private JButton sendButton;
-    private JButton encryptButton;
+    private RoundedButton sendButton;
+    private RoundedButton encryptButton;
     private Socket clientSocket;
     private PrintWriter writer;
     private String username;
@@ -49,13 +49,19 @@ public class WhatsAppGUI extends JFrame {
         messageField.setBackground(chatAreaColor);
         messageField.setFont(new Font("Arial", Font.PLAIN, 16)); // Set font size and style
 
-        sendButton = new JButton("Send");
+        sendButton = new RoundedButton("Send");
         sendButton.setBackground(buttonColor);
         sendButton.addActionListener(new SendMessageListener());
 
-        encryptButton = new JButton("Encrypt");
+        encryptButton = new RoundedButton("Encrypt");
         encryptButton.setBackground(buttonColor);
         encryptButton.addActionListener(new EncryptMessageListener());
+
+        // Set a background image
+        ImageIcon backgroundImage = new ImageIcon("whatsapp_back.jpeg");
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setLayout(new BorderLayout());
+        setContentPane(backgroundLabel);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(messageField, BorderLayout.CENTER);
@@ -63,12 +69,6 @@ public class WhatsAppGUI extends JFrame {
         inputPanel.add(encryptButton, BorderLayout.WEST);
         inputPanel.setBackground(backgroundColor);
         add(inputPanel, BorderLayout.SOUTH);
-
-        // Set a background image
-        ImageIcon backgroundImage = new ImageIcon("whatsapp_back.jpeg");
-        JLabel backgroundLabel = new JLabel(backgroundImage);
-        backgroundLabel.setBounds(0, 0, backgroundImage.getIconWidth(), backgroundImage.getIconHeight());
-        add(backgroundLabel);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 400);
@@ -132,6 +132,36 @@ public class WhatsAppGUI extends JFrame {
             encryptedMessage.append(encryptedChar);
         }
         return encryptedMessage.toString();
+    }
+
+    // Custom button class with rounded edges
+    private class RoundedButton extends JButton {
+        private static final int ARC_WIDTH = 20;
+        private static final int ARC_HEIGHT = 20;
+
+        public RoundedButton(String text) {
+            super(text);
+            setContentAreaFilled(false);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            if (getModel().isArmed()) {
+                g.setColor(getBackground().darker());
+            } else if (getModel().isRollover()) {
+                g.setColor(getBackground().brighter());
+            } else {
+                g.setColor(getBackground());
+            }
+            g.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+            super.paintComponent(g);
+        }
+
+        @Override
+        protected void paintBorder(Graphics g) {
+            g.setColor(getForeground());
+            g.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, ARC_WIDTH, ARC_HEIGHT);
+        }
     }
 
     public static void main(String[] args) {
