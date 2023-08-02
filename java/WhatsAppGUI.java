@@ -15,55 +15,70 @@ public class WhatsAppGUI extends JFrame {
     private JButton sendButton;
     private JButton encryptButton;
     private Socket clientSocket;
-    private Scanner reader;
     private PrintWriter writer;
     private String username;
     private boolean isEncrypted;
+    private Scanner reader;
 
-    // Constructor
     public WhatsAppGUI(String host, int port) {
         username = JOptionPane.showInputDialog(this, "Enter your username:");
         if (username == null || username.trim().isEmpty()) {
             username = "Anonymous";
         }
 
-        // Set up the GUI components
         setTitle("WhatsApp");
         setLayout(new BorderLayout());
+
+        // Apply WhatsApp color scheme
+        Color backgroundColor = new Color(0xF5F5F5); // Light gray
+        Color chatAreaColor = new Color(0xFFFFFF);   // White
+        Color buttonColor = new Color(0x25D366);     // WhatsApp Green
+
+        getContentPane().setBackground(backgroundColor);
 
         chatArea = new JTextArea();
         chatArea.setEditable(false);
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
+        chatArea.setBackground(chatAreaColor);
 
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         add(chatScrollPane, BorderLayout.CENTER);
-        Font messageFont = new Font("Arial", Font.PLAIN, 16);
+
         messageField = new JTextField();
-        messageField.setFont(messageFont);
+        messageField.setBackground(chatAreaColor);
+        messageField.setFont(new Font("Arial", Font.PLAIN, 16)); // Set font size and style
+
         sendButton = new JButton("Send");
+        sendButton.setBackground(buttonColor);
         sendButton.addActionListener(new SendMessageListener());
 
         encryptButton = new JButton("Encrypt");
+        encryptButton.setBackground(buttonColor);
         encryptButton.addActionListener(new EncryptMessageListener());
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(messageField, BorderLayout.CENTER);
         inputPanel.add(sendButton, BorderLayout.EAST);
         inputPanel.add(encryptButton, BorderLayout.WEST);
+        inputPanel.setBackground(backgroundColor);
         add(inputPanel, BorderLayout.SOUTH);
 
+        // Set a background image
+        ImageIcon backgroundImage = new ImageIcon("whatsapp_back.jpeg");
+        JLabel backgroundLabel = new JLabel(backgroundImage);
+        backgroundLabel.setBounds(0, 0, backgroundImage.getIconWidth(), backgroundImage.getIconHeight());
+        add(backgroundLabel);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(400, 300);
+        setSize(600, 400);
+        setLocationRelativeTo(null);  // Center the frame
         setVisible(true);
 
         try {
-            // Establish connection with the server
             clientSocket = new Socket(host, port);
-            reader = new Scanner(clientSocket.getInputStream());
             writer = new PrintWriter(clientSocket.getOutputStream(), true);
-
-            // Start a new thread to listen for messages from the server
+            reader = new Scanner(clientSocket.getInputStream());
             new Thread(new ReceivedMessagesHandler()).start();
         } catch (UnknownHostException e) {
             e.printStackTrace();

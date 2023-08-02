@@ -1,74 +1,72 @@
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Server {
 
-    private final int port;
-    private Set<PrintWriter> clientWriters = new HashSet<>();
+    private List<PrintWriter> clientWriters;
 
-    public Server(int port) {
-        this.port = port;
+    public static void main(String[] args) {
+        new Server().run();
     }
 
-    public void start() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(port);
-        System.out.println("Server is running on port " + port);
+    public Server() {
+        clientWriters = new ArrayList<>();
+    }
 
-        while (true) {
-            Socket clientSocket = serverSocket.accept();
-            System.out.println("New client connected: " + clientSocket.getInetAddress().getHostAddress());
-            PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-            clientWriters.add(writer);
-            new ClientHandler(clientSocket, writer).start();
+    public void run() {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5000);
+            System.out.println("Server is running and waiting for clients...");
+
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client connected: " + clientSocket);
+
+                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+                clientWriters.add(writer);
+
+                new Thread(new ClientHandler(clientSocket, writer)).start();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    private class ClientHandler extends Thread {
-        private Socket socket;
-        private BufferedReader reader;
+    private class ClientHandler implements Runnable {
+
+        private Socket clientSocket;
         private PrintWriter writer;
 
-        public ClientHandler(Socket socket, PrintWriter writer) throws IOException {
-            this.socket = socket;
+        public ClientHandler(Socket clientSocket, PrintWriter writer) {
+            this.clientSocket = clientSocket;
             this.writer = writer;
-            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }
 
         @Override
         public void run() {
             try {
-                String message;
-                while ((message = reader.readLine()) != null) {
-                    System.out.println("Received message: " + message);
-                    sendToAllClients(message);
+                Scanner reader = new Scanner(clientSocket.getInputStream());
+                while (reader.hasNextLine()) {
+                    String message = reader.nextLine();
+                    System.out.println("Received: " + message);
+
+                    // Broadcast the message to all connected clients
+                    for (PrintWriter clientWriter : clientWriters) {
+                        clientWriter.println(message);
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                try {
+                if (writer != null) {
                     clientWriters.remove(writer);
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
-        }
-
-        private void sendToAllClients(String message) {
-            for (PrintWriter writer : clientWriters) {
-                writer.println(message);
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        int port = 5000;
-        try {
-            Server server = new Server(port);
-            server.start();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
