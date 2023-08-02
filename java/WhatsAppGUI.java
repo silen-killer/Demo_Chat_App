@@ -41,13 +41,14 @@ public class WhatsAppGUI extends JFrame {
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
         chatArea.setBackground(chatAreaColor);
+        chatArea.setFont(new Font("Arial", Font.BOLD, 20));
 
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         add(chatScrollPane, BorderLayout.CENTER);
 
         messageField = new JTextField();
         messageField.setBackground(chatAreaColor);
-        messageField.setFont(new Font("Arial", Font.PLAIN, 16)); // Set font size and style
+        messageField.setFont(new Font("Arial", Font.PLAIN, 20)); // Set font size and style
 
         sendButton = new RoundedButton("Send");
         sendButton.setBackground(buttonColor);
@@ -62,6 +63,12 @@ public class WhatsAppGUI extends JFrame {
         JLabel backgroundLabel = new JLabel(backgroundImage);
         backgroundLabel.setLayout(new BorderLayout());
         setContentPane(backgroundLabel);
+
+        // Add the chat area to the background label
+        Color TRANSPARENT = new Color(0, 0, 0, 0);
+        chatArea.setOpaque(false);
+        chatArea.setBackground(TRANSPARENT);
+        backgroundLabel.add(chatArea, BorderLayout.CENTER);
 
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.add(messageField, BorderLayout.CENTER);
@@ -109,7 +116,7 @@ public class WhatsAppGUI extends JFrame {
                 encryptButton.setText("Encrypt");
             } else {
                 isEncrypted = true;
-                encryptButton.setText("On");
+                encryptButton.setText("OFF");
             }
         }
     }
