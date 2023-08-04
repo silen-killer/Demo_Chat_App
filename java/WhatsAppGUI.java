@@ -102,7 +102,7 @@ public class WhatsAppGUI extends JFrame {
                 if (isEncrypted) {
                     message = encrypt(message);
                 }
-                writer.println(username + ": " + message);
+                writer.println(username + ": Encrypted : " + message);
                 messageField.setText("");
             }
         }
