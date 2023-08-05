@@ -171,6 +171,6 @@ public class WhatsAppGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new WhatsAppGUI("192.168.42.60", 5000));
+        SwingUtilities.invokeLater(() -> new WhatsAppGUI("192.168.42.57", 5000));
     }
 }
