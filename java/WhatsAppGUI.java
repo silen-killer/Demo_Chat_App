@@ -101,9 +101,13 @@ public class WhatsAppGUI extends JFrame {
             if (!message.trim().isEmpty()) {
                 if (isEncrypted) {
                     message = encrypt(message);
+                    writer.println(username + ": ENCRYPTED : " + message);
+                    messageField.setText("");
                 }
-                writer.println(username + ": Encrypted : " + message);
-                messageField.setText("");
+                else {
+                    writer.println(username + " : " + message);
+                    messageField.setText("");
+                }
             }
         }
     }
@@ -131,7 +135,7 @@ public class WhatsAppGUI extends JFrame {
         String key = "Bi0s";
         for (int i = 0; i < message.length(); i++) {
             char encryptedChar = (char) (message.charAt(i) ^ key.charAt(i % key.length()));
-            encryptedMessage.append(encryptedChar);
+            encryptedMessage.append(String.format("%02X", (int) encryptedChar));  // Convert to hex
         }
         return encryptedMessage.toString();
     }
@@ -167,6 +171,6 @@ public class WhatsAppGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new WhatsAppGUI("localhost", 5000));
+        SwingUtilities.invokeLater(() -> new WhatsAppGUI("192.168.42.60", 5000));
     }
 }
