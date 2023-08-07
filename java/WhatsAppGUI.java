@@ -78,8 +78,12 @@ public class WhatsAppGUI extends JFrame {
         add(inputPanel, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 400);
-        setLocationRelativeTo(null);  // Center the frame
+        int width = 800;
+        int height = 1100;
+        int x = 1150;
+        int y = 0;
+        setSize(width, height);
+        setLocation(x, y);
         setVisible(true);
 
         try {
@@ -171,6 +175,6 @@ public class WhatsAppGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new WhatsAppGUI("192.168.42.57", 5000));
+        SwingUtilities.invokeLater(() -> new WhatsAppGUI("localhost", 12345));
     }
 }

@@ -20,7 +20,7 @@ public class Server {
 
     public void run() {
         try {
-            ServerSocket serverSocket = new ServerSocket(5000);
+            ServerSocket serverSocket = new ServerSocket(12345);
             System.out.println("Server is running and waiting for clients...");
 
             while (true) {
