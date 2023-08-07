@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.awt.image.BufferedImage;
 
 public class WhatsAppGUI extends JFrame {
 
@@ -17,7 +18,7 @@ public class WhatsAppGUI extends JFrame {
     private Socket clientSocket;
     private PrintWriter writer;
     private String username;
-    private boolean isEncrypted;
+    // private boolean isEncrypted = true;
     private Scanner reader;
 
     public WhatsAppGUI(String host, int port) {
@@ -41,7 +42,7 @@ public class WhatsAppGUI extends JFrame {
         chatArea.setLineWrap(true);
         chatArea.setWrapStyleWord(true);
         chatArea.setBackground(chatAreaColor);
-        chatArea.setFont(new Font("Arial", Font.BOLD, 20));
+        chatArea.setFont(new Font("ArialBlack", Font.BOLD, 20));
 
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         add(chatScrollPane, BorderLayout.CENTER);
@@ -54,12 +55,12 @@ public class WhatsAppGUI extends JFrame {
         sendButton.setBackground(buttonColor);
         sendButton.addActionListener(new SendMessageListener());
 
-        encryptButton = new RoundedButton("Encrypt");
+        encryptButton = new RoundedButton("Mic");
         encryptButton.setBackground(buttonColor);
-        encryptButton.addActionListener(new EncryptMessageListener());
+        // encryptButton.addActionListener(new EncryptMessageListener());
 
         // Set a background image
-        ImageIcon backgroundImage = new ImageIcon("whatsapp_back.jpeg");
+        ImageIcon backgroundImage = new ImageIcon("output-onlinepngtools.png");
         JLabel backgroundLabel = new JLabel(backgroundImage);
         backgroundLabel.setLayout(new BorderLayout());
         setContentPane(backgroundLabel);
@@ -78,10 +79,10 @@ public class WhatsAppGUI extends JFrame {
         add(inputPanel, BorderLayout.SOUTH);
 
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        int width = 800;
-        int height = 1100;
-        int x = 1150;
-        int y = 0;
+        int width = 800; // Adjust the width as needed
+        int height = 1150; // Adjust the height as needed
+        int x = 1150; // Adjust the x-coordinate as needed
+        int y = 0; // Adjust the y-coordinate as needed
         setSize(width, height);
         setLocation(x, y);
         setVisible(true);
@@ -103,24 +104,12 @@ public class WhatsAppGUI extends JFrame {
         public void actionPerformed(ActionEvent e) {
             String message = messageField.getText();
             if (!message.trim().isEmpty()) {
-                if (isEncrypted) {
-                    message = encrypt(message);
-                    writer.println(username + ": ENCRYPTED : " + message);
-                    messageField.setText("");
-                }
-                else {
-                    writer.println(username + " : " + message);
+                {
+                    message = encrypt(username + ":" + message);
+                    writer.println(message);
                     messageField.setText("");
                 }
             }
-        }
-    }
-
-    private class EncryptMessageListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            isEncrypted = !isEncrypted;
-            encryptButton.setText(isEncrypted ? "ON" : "OFF");
         }
     }
 
@@ -129,22 +118,62 @@ public class WhatsAppGUI extends JFrame {
         public void run() {
             while (reader.hasNextLine()) {
                 String message = reader.nextLine();
+                message = decrypt(message);
                 chatArea.append(message + "\n");
             }
         }
     }
 
-    private String encrypt(String message) {
-        StringBuilder encryptedMessage = new StringBuilder();
-        String key = "Bi0s";
-        for (int i = 0; i < message.length(); i++) {
-            char encryptedChar = (char) (message.charAt(i) ^ key.charAt(i % key.length()));
-            encryptedMessage.append(String.format("%02X", (int) encryptedChar));  // Convert to hex
+    private static String asciiToHex(String asciiStr) {
+        char[] chars = asciiStr.toCharArray();
+        StringBuilder hex = new StringBuilder();
+        for (char ch : chars) {
+            String tmp = Integer.toHexString((int) ch);
+            if(tmp.length()==1){
+                tmp="0"+tmp;
+            }
+            hex.append(tmp);
         }
-        return encryptedMessage.toString();
+        return hex.toString();
     }
 
-    // Custom button class with rounded edges
+    private static String hexToAscii(String hexStr) {
+        StringBuilder output = new StringBuilder("");
+        for (int i = 0; i < hexStr.length(); i += 2) {
+            String str = hexStr.substring(i, i + 2);
+            output.append((char) Integer.parseInt(str, 16));
+        }
+        
+        return output.toString();
+    }
+
+    private String encrypt(String message) {
+    StringBuilder encryptedMessage = new StringBuilder();
+    String key = "Bi0s";
+    for (int i = 0; i < message.length(); i++) {
+        char encryptedChar = (char) (message.charAt(i) ^ key.charAt(i % key.length()));
+        encryptedMessage.append(encryptedChar);
+    }
+    
+    String mess = asciiToHex(encryptedMessage.toString());
+    return mess.toString();
+
+    }
+
+    private String decrypt(String message){
+        String decryptedMessageAscii = new String();
+        String key = "Bi0s";
+        decryptedMessageAscii = hexToAscii(message);
+        StringBuilder decryptedMessage = new StringBuilder();
+        for (int i = 0; i < decryptedMessageAscii.length(); i++) {
+            char decryptedChar = (char) (decryptedMessageAscii.charAt(i) ^ key.charAt(i % key.length()));
+            decryptedMessage.append(decryptedChar);
+        }
+        return decryptedMessage.toString();
+
+    }
+
+
     private class RoundedButton extends JButton {
         private static final int ARC_WIDTH = 20;
         private static final int ARC_HEIGHT = 20;
